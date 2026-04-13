@@ -1,0 +1,9 @@
+All drawings are licensed under the Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0).
+You are free to share and adapt the drawings for any purpose, even commercially, as long as you give appropriate credit, provide a link to the license, and indicate if changes were made.
+If you remix, transform, or build upon the drawings, you must distribute your contributions under the same license as the original.
+For more details, please visit https://creativecommons.org/licenses/by-sa/4.0/.
+
+All code is licensed under the GPL-2.0 License.
+You are free to use, modify, and distribute the code for any purpose, as long as you comply with the terms of the GPL-2.0 License.
+This means that if you distribute the code or any derivative works, you must also distribute the source code and provide the same freedoms to others.
+For more details, please visit https://www.gnu.org/licenses/gpl-2.0.html.
