@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import math
+import sys
 import typing
 
 diamaters = [80, 100, 125, 150, 160, 180, 200, 250]
@@ -187,37 +188,53 @@ class TFitting(Node):
         """
         return self.pressure_loss(airspeed) + self._outflow.total_pressure_loss(airspeed)
 
-schlafzimmer = AirOutlet("Schlafzimmer", 60)
-kinderzimmer1 = AirOutlet("Kinderzimmer 1", 25)
-kinderzimmer2 = AirOutlet("Kinderzimmer 2", 25)
-abstellraum = AirOutlet("Abstellraum", 50)
-Esszimmer = AirOutlet("Esszimmer", 60)
+schlafzimmer = AirOutlet("Schlafzimmer", 50)
+kinderzimmer1 = AirOutlet("Kinderzimmer 1", 30)
+kinderzimmer2 = AirOutlet("Kinderzimmer 2", 30)
+wohnzimmer_1 = AirOutlet("Wohnzimmer NW", 40)
+wohnzimmer_2 = AirOutlet("Wohnzimmer NO", 40)
+buero = AirOutlet("Büro", 30)
+keller_zuluft = AirOutlet("Keller", 0.15*50*2.72) # Luftwechsel 0.15/h
+dachboden_zuluft = AirOutlet("Dachboden", 0.3*23*12.75) # Luftwechsel 0.3/h
 
-bad_og = AirInlet("Bad OG", 30)
-bad_eg = AirInlet("Bad EG", 30)
-wc_og = AirInlet("WC OG", 20)
-wc_eg = AirInlet("WC EG", 20)
-hwr = AirInlet("HWR", 30)
+bad_eltern_1 = AirInlet("Bad 1 OG", schlafzimmer.flow_rate/2)
+bad_eltern_2 = AirInlet("Bad 2 OG", schlafzimmer.flow_rate/2)
+bad_kind1 = AirInlet("Bad Kind 1", 30)
+bad_kind2 = AirInlet("Bad Kind 2", 30)
+wc = AirInlet("WC", 20)
+kueche_1 = AirInlet("Küche 1", 60)
+kueche_2 = AirInlet("Küche 2", 60)
+keller_abluft = AirInlet("Keller", keller_zuluft.flow_rate)
+dachbode_abluft = AirInlet("Dachboden", dachboden_zuluft.flow_rate)
 
 all_outlets = [
     schlafzimmer,
     kinderzimmer1,
     kinderzimmer2,
-    abstellraum,
-    Esszimmer
+    wohnzimmer_1,
+    wohnzimmer_2,
+    buero,
+    keller_zuluft,
+    dachboden_zuluft
 ]
 
 all_inlets = [
-    bad_og,
-    bad_eg,
-    wc_og,
-    wc_eg,
-    hwr
+    bad_eltern_1,
+    bad_eltern_2,
+    bad_kind1,
+    bad_kind2,
+    wc,
+    kueche_1,
+    kueche_2,
+    keller_abluft,
+    dachbode_abluft
 ]
 
 total_outlet_flow = sum([outlet.flow() for outlet in all_outlets])
 total_inlet_flow = sum([inlet.flow() for inlet in all_inlets])
-heuboden = AirInlet("Heuboden", total_outlet_flow - total_inlet_flow)
+residual_flow = AirInlet("Residualfluss", total_outlet_flow - total_inlet_flow)
+building_inflow = AirOutlet("Zuluft", total_outlet_flow)
+building_outflow = AirInlet("Fortluft", total_outlet_flow)
 
 print("Total outlet flow: ", sum([outlet.flow() for outlet in all_outlets]), "qbm/h")
 print("Total inlet flow: ", sum([inlet.flow() for inlet in all_inlets]), "qbm/h")
@@ -230,7 +247,17 @@ print("Inlets:")
 for inlet in all_inlets:
     print(f"{inlet.name}: {inlet.flow()} -> A={inlet.area()}, DN={inlet.diameter()} cm")
 
-print(f"{heuboden.name}: {heuboden.flow()} -> A={heuboden.area()}, DN={heuboden.diameter()} cm")
+print("Zuluft/Fortluft:")
+print(f"{building_inflow.name}: {building_inflow.flow()} -> A={building_inflow.area(airspeed=2)}, DN={building_inflow.diameter(airspeed=2)} cm")
+print(f"{building_outflow.name}: {building_outflow.flow()} -> A={building_outflow.area(airspeed=2)}, DN={building_outflow.diameter(airspeed=2)} cm")
+
+if residual_flow.flow() > 0:
+    print(f"{residual_flow.name}: {residual_flow.flow()} -> A={residual_flow.area()}, DN={residual_flow.diameter()} cm")
+else:
+    print("No residual flow")
+    
+sys.exit(0)
+
 
 schlafzimmer_anbindung: typing.List[Node] = [schlafzimmer]
 schlafzimmer_anbindung.append(PipeElbow90("Schlafzimmer", schlafzimmer_anbindung[-1]))
