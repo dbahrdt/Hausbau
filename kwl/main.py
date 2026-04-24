@@ -7,6 +7,12 @@ diamaters = [80, 100, 125, 150, 160, 180, 200, 250]
 
 AIR_DENSITY = 1.2  # kg/m3
 
+class Diamater:
+    def __init__(self, diamater_in_mm: typing.Union[int, float]):
+        self.diamater_in_mm = int(diamater_in_mm)
+
+    def __str__(self):
+        return f"DN{self.diamater_in_mm}"
 
 class Node:
     def __init__(self, name: str):
@@ -28,13 +34,13 @@ class Node:
         area_in_cm2 = area_in_m2 * 10000
         return area_in_cm2
 
-    def diameter(self, airspeed: float=1.0) -> float:
+    def diameter(self, airspeed: float=1.0) -> Diamater:
         """
         :param airspeed: m/s
         :return: diameter in cm
         """
         diameter_in_cm = 2 * math.sqrt(self.area(airspeed) / math.pi)
-        return diameter_in_cm
+        return Diamater(diameter_in_cm*10)
 
     def pressure_loss(self, airspeed: float) -> float:
         """
@@ -191,19 +197,18 @@ class TFitting(Node):
 schlafzimmer = AirOutlet("Schlafzimmer", 50)
 kinderzimmer1 = AirOutlet("Kinderzimmer 1", 30)
 kinderzimmer2 = AirOutlet("Kinderzimmer 2", 30)
-wohnzimmer_1 = AirOutlet("Wohnzimmer NW", 40)
-wohnzimmer_2 = AirOutlet("Wohnzimmer NO", 40)
+wohnzimmer_1 = AirOutlet("Wohnzimmer NW", 45)
+wohnzimmer_2 = AirOutlet("Wohnzimmer NO", 45)
 buero = AirOutlet("Büro", 30)
-keller_zuluft = AirOutlet("Keller", 0.15*50*2.72) # Luftwechsel 0.15/h
+keller_zuluft = AirOutlet("Keller", 0.3*50*2.72) # Luftwechsel 0.3/h
 dachboden_zuluft = AirOutlet("Dachboden", 0.3*23*12.75) # Luftwechsel 0.3/h
 
-bad_eltern_1 = AirInlet("Bad 1 OG", schlafzimmer.flow_rate/2)
-bad_eltern_2 = AirInlet("Bad 2 OG", schlafzimmer.flow_rate/2)
+bad_eltern = AirInlet("Elternbad", schlafzimmer.flow_rate)
 bad_kind1 = AirInlet("Bad Kind 1", 30)
 bad_kind2 = AirInlet("Bad Kind 2", 30)
 wc = AirInlet("WC", 20)
-kueche_1 = AirInlet("Küche 1", 60)
-kueche_2 = AirInlet("Küche 2", 60)
+kueche_1 = AirInlet("Küche 1", wohnzimmer_1.flow_rate)
+kueche_2 = AirInlet("Küche 2", wohnzimmer_2.flow_rate)
 keller_abluft = AirInlet("Keller", keller_zuluft.flow_rate)
 dachbode_abluft = AirInlet("Dachboden", dachboden_zuluft.flow_rate)
 
@@ -219,8 +224,7 @@ all_outlets = [
 ]
 
 all_inlets = [
-    bad_eltern_1,
-    bad_eltern_2,
+    bad_eltern,
     bad_kind1,
     bad_kind2,
     wc,
@@ -241,18 +245,18 @@ print("Total inlet flow: ", sum([inlet.flow() for inlet in all_inlets]), "qbm/h"
 
 print("Outlets:")
 for outlet in all_outlets:
-    print(f"{outlet.name}: {outlet.flow()} -> A={outlet.area()}, DN={outlet.diameter()} cm")
+    print(f"{outlet.name}: {outlet.flow()} -> A={outlet.area()}, DN={outlet.diameter()}")
 
 print("Inlets:")
 for inlet in all_inlets:
-    print(f"{inlet.name}: {inlet.flow()} -> A={inlet.area()}, DN={inlet.diameter()} cm")
+    print(f"{inlet.name}: {inlet.flow()} -> A={inlet.area()}, DN={inlet.diameter()}")
 
 print("Zuluft/Fortluft:")
-print(f"{building_inflow.name}: {building_inflow.flow()} -> A={building_inflow.area(airspeed=2)}, DN={building_inflow.diameter(airspeed=2)} cm")
-print(f"{building_outflow.name}: {building_outflow.flow()} -> A={building_outflow.area(airspeed=2)}, DN={building_outflow.diameter(airspeed=2)} cm")
+print(f"{building_inflow.name}: {building_inflow.flow()} -> A={building_inflow.area(airspeed=2)}, DN={building_inflow.diameter(airspeed=2)}")
+print(f"{building_outflow.name}: {building_outflow.flow()} -> A={building_outflow.area(airspeed=2)}, DN={building_outflow.diameter(airspeed=2)}")
 
 if residual_flow.flow() > 0:
-    print(f"{residual_flow.name}: {residual_flow.flow()} -> A={residual_flow.area()}, DN={residual_flow.diameter()} cm")
+    print(f"{residual_flow.name}: {residual_flow.flow()} -> A={residual_flow.area()}, DN={residual_flow.diameter()}")
 else:
     print("No residual flow")
     
