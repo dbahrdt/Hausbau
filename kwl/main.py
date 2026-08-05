@@ -252,8 +252,8 @@ for inlet in all_inlets:
     print(f"{inlet.name}: {inlet.flow()} -> A={inlet.area()}, DN={inlet.diameter()}")
 
 print("Zuluft/Fortluft:")
-print(f"{building_inflow.name}: {building_inflow.flow()} -> A={building_inflow.area(airspeed=2)}, DN={building_inflow.diameter(airspeed=2)}")
-print(f"{building_outflow.name}: {building_outflow.flow()} -> A={building_outflow.area(airspeed=2)}, DN={building_outflow.diameter(airspeed=2)}")
+print(f"{building_inflow.name}: {building_inflow.flow()} -> A={building_inflow.area(airspeed=2)}, DN={building_inflow.diameter(airspeed=4)}")
+print(f"{building_outflow.name}: {building_outflow.flow()} -> A={building_outflow.area(airspeed=2)}, DN={building_outflow.diameter(airspeed=3)}")
 
 if residual_flow.flow() > 0:
     print(f"{residual_flow.name}: {residual_flow.flow()} -> A={residual_flow.area()}, DN={residual_flow.diameter()}")
